@@ -19,16 +19,25 @@
     <header class="top-bar">
         <div class="course-title">PYTHON MW 8:30 -10:30</div>
 
-        <!-- login button (we’ll wire it later) -->
+        <!-- login button -->
         <a href="#" class="login-btn">LOGIN</a>
     </header>
 
     <!-- MAIN CONTENT -->
     <main class="main-container">
-        <!-- big square in the center (QR area) -->
-        <div id="qr-reader" class="qr-box"></div>
+        <!-- Scanner wrapper (QR + status) -->
+        <div class="scanner-wrapper">
+            <!-- big square in the center (QR area) -->
+            <div id="qr-reader" class="qr-box"></div>
 
-        <!-- result text -->
+            <!-- status indicator -->
+            <div class="scanner-status">
+                <span class="status-dot"></span>
+                <span id="scanner-status-text">Initializing camera...</span>
+            </div>
+        </div>
+
+        <!-- result text (unchanged) -->
         <div id="scan-result" class="scan-result">
             <!-- last scanned value will appear here -->
         </div>

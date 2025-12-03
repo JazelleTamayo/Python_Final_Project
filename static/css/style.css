@@ -31,6 +31,7 @@
     font-weight: bold;
     font-size: 13px;
     border-radius: 4px;
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .login-btn:hover {
@@ -43,17 +44,82 @@
     text-align: center;
 }
 
+/* Scanner wrapper (centers QR + status) */
+.scanner-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
 /* big square center (QR box) */
 .qr-box {
     width: 320px;
     height: 240px;
-    margin: 0 auto 20px auto;
+    margin: 0 auto 10px auto;
     border: 4px solid #000;
     background-color: #fff;
     box-sizing: border-box;
+    position: relative;      /* for the scan-line overlay */
+    overflow: hidden;
+    border-radius: 12px;
 }
 
-/* result box under QR */
+/* moving scan line inside the QR box */
+.qr-box::before {
+    content: "";
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    height: 3px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 999px;
+    animation: scan-line 2s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes scan-line {
+    0%   { top: 10px; }
+    50%  { top: calc(100% - 10px - 3px); }
+    100% { top: 10px; }
+}
+
+/* Status pill under QR */
+.scanner-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    background-color: #000;
+    color: #fff;
+    border-radius: 999px;
+    font-size: 12px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+.status-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background-color: #ffc107; /* neutral: initializing/scanning */
+    animation: status-pulse 1.5s ease-in-out infinite;
+}
+
+.status-dot.status-success {
+    background-color: #00c851; /* green */
+}
+
+.status-dot.status-error {
+    background-color: #ff4444; /* red */
+}
+
+@keyframes status-pulse {
+    0%   { transform: scale(1);   opacity: 1; }
+    50%  { transform: scale(1.4); opacity: 0.3; }
+    100% { transform: scale(1);   opacity: 1; }
+}
+
+/* result box under QR (unchanged) */
 .scan-result {
     margin: 20px auto 0 auto;
     width: 60%;
