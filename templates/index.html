@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>QR Reader | Attendance System</title>
@@ -19,9 +20,10 @@
     <header class="top-bar">
         <div class="course-title">PYTHON MW 8:30 -10:30</div>
 
-        <!-- login button -->
-        <a href="#" class="login-btn">LOGIN</a>
+        <!-- login button now links to /login -->
+        <a href="{{ url_for('login') }}" class="login-btn">LOGIN</a>
     </header>
+
 
     <!-- MAIN CONTENT -->
     <main class="main-container">
@@ -54,4 +56,5 @@
     <!-- your custom JS -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
+
 </html>

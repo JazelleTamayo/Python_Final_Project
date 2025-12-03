@@ -1,4 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
+    // ==========================
+    // QR SCANNER (index.html)
+    // ==========================
     const qrDiv = document.getElementById("qr-reader");
     const resultBox = document.getElementById("scan-result");
     const statusTextEl = document.getElementById("scanner-status-text");
@@ -19,82 +22,102 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    if (!qrDiv) {
-        console.error("qr-reader element not found");
-        setStatus("Scanner element not found.", "error");
-        return;
-    }
+    // Run QR logic ONLY if we’re on index.html
+    if (qrDiv) {
+        console.log("Html5Qrcode is:", typeof Html5Qrcode);
 
-    console.log("Html5Qrcode is:", typeof Html5Qrcode);
-    if (typeof Html5Qrcode === "undefined") {
-        console.error("Html5Qrcode library NOT loaded.");
-        alert("QR library failed to load. Check console for details.");
-        setStatus("QR library failed to load.", "error");
-        return;
-    }
-
-    setStatus("Initializing camera...");
-
-    const qrScanner = new Html5Qrcode("qr-reader");
-
-    function isValidURL(text) {
-        try {
-            const url = new URL(text);
-            return true;
-        } catch {
-            return false;
-        }
-    }
-
-    function onSuccess(decodedText) {
-        console.log("Scanned:", decodedText);
-
-        if (!resultBox) return;
-
-        // If scanned text is a URL → make clickable link
-        if (isValidURL(decodedText)) {
-            resultBox.innerHTML =
-                `<a href="${decodedText}" target="_blank" class="scan-link">${decodedText}</a>`;
+        if (typeof Html5Qrcode === "undefined") {
+            console.error("Html5Qrcode library NOT loaded.");
+            alert("QR library failed to load. Check console for details.");
+            setStatus("QR library failed to load.", "error");
         } else {
-            // If not a link, show plain text
-            resultBox.innerText = decodedText;
-        }
+            setStatus("Initializing camera...");
 
-        // briefly show "detected" status then go back to scanning
-        setStatus("QR code detected!", "success");
-        setTimeout(() => {
-            setStatus("Scanning... hold QR code steady.");
-        }, 2000);
-    }
+            const qrScanner = new Html5Qrcode("qr-reader");
 
-    function onError(err) {
-        // Normal scan errors; keep silent
-        // Could log if you want: console.log("Scan error:", err);
-    }
-
-    Html5Qrcode.getCameras()
-        .then(cameras => {
-            if (cameras.length > 0) {
-                const id = cameras[0].id;
-                setStatus("Scanning... hold QR code steady.");
-                qrScanner.start(
-                    id,
-                    { fps: 10, qrbox: 250 },
-                    onSuccess,
-                    onError
-                ).catch(err => {
-                    console.error("Unable to start scanner:", err);
-                    alert("Unable to start camera.");
-                    setStatus("Unable to start camera.", "error");
-                });
-            } else {
-                alert("No camera found.");
-                setStatus("No camera found.", "error");
+            function isValidURL(text) {
+                try {
+                    const url = new URL(text);
+                    return true;
+                } catch {
+                    return false;
+                }
             }
-        })
-        .catch(err => {
-            console.error("Camera error:", err);
-            alert("Error accessing camera.");
-            setStatus("Error accessing camera.", "error");
+
+            function onSuccess(decodedText) {
+                console.log("Scanned:", decodedText);
+
+                if (resultBox) {
+                    if (isValidURL(decodedText)) {
+                        resultBox.innerHTML =
+                            `<a href="${decodedText}" target="_blank" class="scan-link">${decodedText}</a>`;
+                    } else {
+                        resultBox.innerText = decodedText;
+                    }
+                }
+
+                // temporary success state
+                setStatus("QR code detected!", "success");
+                setTimeout(() => {
+                    setStatus("Scanning... hold QR code steady.");
+                }, 2000);
+            }
+
+            function onError(err) {
+                // scan errors ignored
+            }
+
+            Html5Qrcode.getCameras()
+                .then(cameras => {
+                    if (cameras.length > 0) {
+                        const id = cameras[0].id;
+                        setStatus("Scanning... hold QR code steady.");
+                        qrScanner.start(
+                            id,
+                            { fps: 10, qrbox: 250 },
+                            onSuccess,
+                            onError
+                        ).catch(err => {
+                            console.error("Unable to start scanner:", err);
+                            alert("Unable to start camera.");
+                            setStatus("Unable to start camera.", "error");
+                        });
+                    } else {
+                        alert("No camera found.");
+                        setStatus("No camera found.", "error");
+                    }
+                })
+                .catch(err => {
+                    console.error("Camera error:", err);
+                    alert("Error accessing camera.");
+                    setStatus("Error accessing camera.", "error");
+                });
+        }
+    }
+
+    // ==========================
+    // LOGIN / REGISTER TABS (login.html)
+    // ==========================
+    const tabs = document.querySelectorAll(".auth-tab");
+    const forms = document.querySelectorAll(".auth-form");
+
+    // Only run this on login.html
+    if (tabs.length > 0 && forms.length > 0) {
+        tabs.forEach(tab => {
+            tab.addEventListener("click", () => {
+                const targetSelector = tab.getAttribute("data-target");
+                const targetForm = document.querySelector(targetSelector);
+
+                // active tab styling
+                tabs.forEach(t => t.classList.remove("active"));
+                tab.classList.add("active");
+
+                // show/hide forms
+                forms.forEach(f => f.classList.add("auth-form-hidden"));
+                if (targetForm) {
+                    targetForm.classList.remove("auth-form-hidden");
+                }
+            });
         });
+    }
 });

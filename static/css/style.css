@@ -157,3 +157,132 @@
 .scan-link:hover {
     color: #004a99;
 }
+
+/* AUTH CARD (Login/Register Page) */
+.auth-card {
+    width: 380px;
+    margin: 50px auto;
+    padding: 28px;
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    text-align: left;
+}
+
+.auth-title {
+    font-size: 22px;
+    margin-bottom: 4px;
+    font-weight: 700;
+}
+
+.auth-subtitle {
+    font-size: 13px;
+    color: #777;
+    margin-bottom: 18px;
+}
+
+/* Tabs */
+.auth-tabs {
+    display: flex;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 16px;
+}
+
+.auth-tab {
+    flex: 1;
+    padding: 10px 0;
+    border: none;
+    background: transparent;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    border-bottom: 2px solid transparent;
+}
+
+.auth-tab.active {
+    border-bottom: 2px solid #000;
+}
+
+/* Forms */
+.auth-form {
+    margin-top: 8px;
+}
+
+.auth-form-hidden {
+    display: none;
+}
+
+.form-group {
+    margin-bottom: 14px;
+}
+
+.form-group label {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    display: block;
+    color: #222;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px 11px;
+    border-radius: 6px;
+    border: 1px solid #bbb;
+    font-size: 14px;
+    outline: none;
+    transition: border 0.2s;
+}
+
+.form-group input:focus {
+    border-color: #000;
+}
+
+/* Buttons */
+.primary-btn {
+    width: 100%;
+    padding: 10px;
+    margin-top: 6px;
+    border-radius: 6px;
+    border: none;
+    background-color: #000;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.primary-btn:hover {
+    background-color: #333;
+}
+
+/* Flash Messages */
+.flash-messages {
+    margin-bottom: 14px;
+}
+
+.flash-message {
+    padding: 8px 10px;
+    font-size: 13px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    border: 1px solid transparent;
+}
+
+.flash-success {
+    background-color: #E7F9E9;
+    border-color: #8CE18E;
+}
+
+.flash-error {
+    background-color: #FBE8E8;
+    border-color: #E58383;
+}
+
+.flash-info {
+    background-color: #EAF2FF;
+    border-color: #83A8E5;
+}
