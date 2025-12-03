@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>QR Reader | Attendance System</title>
+
+    <!-- W3CSS framework -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/w3.css') }}">
+    <!-- Your custom styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <!-- QR scanner library -->
+    <script src="{{ url_for('static', filename='js/html5-qrcode.min.js') }}"></script>
+</head>
+
+<body class="page-body">
+
+    <!-- TOP BAR -->
+    <header class="top-bar">
+        <div class="course-title">PYTHON MW 8:30 -10:30</div>
+
+        <!-- login button (we’ll wire it later) -->
+        <a href="#" class="login-btn">LOGIN</a>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-container">
+        <!-- big square in the center (QR area) -->
+        <div id="qr-reader" class="qr-box"></div>
+
+        <!-- result text -->
+        <div id="scan-result" class="scan-result">
+            <!-- last scanned value will appear here -->
+        </div>
+
+        <!-- horizontal line -->
+        <hr class="center-line">
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        ©copyright Tamayo&amp;Sermonia
+    </footer>
+
+    <!-- your custom JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
