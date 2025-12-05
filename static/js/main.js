@@ -171,7 +171,133 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ==========================
+// STUDENT VIEWER (studentmngt.html)
+// ==========================
+const viewButtons = document.querySelectorAll(".view-student-btn");
+const viewerIdno = document.getElementById("view-student-idno");
+const viewerLastName = document.getElementById("view-last-name");
+const viewerFirstName = document.getElementById("view-first-name");
+const viewerCourse = document.getElementById("view-course");
+const viewerLevel = document.getElementById("view-level");
+const viewerEditBtn = document.getElementById("viewer-edit-btn");
+const viewerPhoto = document.getElementById("viewer-photo");  // <--- avatar img
+
+let currentStudentEditUrl = null;
+
+if (
+    viewButtons.length > 0 &&
+    viewerIdno &&
+    viewerLastName &&
+    viewerFirstName &&
+    viewerCourse &&
+    viewerLevel
+) {
+    viewButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+            const rowId = btn.getAttribute("data-id");
+            const idno = btn.getAttribute("data-student-id") || "";
+            const lastName = btn.getAttribute("data-last-name") || "";
+            const firstName = btn.getAttribute("data-first-name") || "";
+            const course = btn.getAttribute("data-course") || "";
+            const level = btn.getAttribute("data-level") || "";
+            const photoUrl = btn.getAttribute("data-photo") || ""; // <--- from studentmngt.html
+
+            // fill viewer inputs
+            viewerIdno.value = idno;
+            viewerLastName.value = lastName;
+            viewerFirstName.value = firstName;
+            viewerCourse.value = course;
+            viewerLevel.value = level;
+
+            // update avatar
+            if (viewerPhoto && photoUrl) {
+                viewerPhoto.src = photoUrl;
+            }
+
+            // store URL for EDIT button in viewer
+            currentStudentEditUrl = "/student/" + rowId;
+        });
+    });
+
+    if (viewerEditBtn) {
+        viewerEditBtn.addEventListener("click", () => {
+            if (currentStudentEditUrl) {
+                window.location.href = currentStudentEditUrl;
+            }
+        });
+    }
+}
+
+
+ // ==========================
+// STUDENT FORM (student.html)
+// - Camera capture (Webcam.js)
+// - QR code generator (qrcode.min.js)
+// ==========================
+const cameraViewer = document.getElementById("camera-viewer");
+const captureBtn = document.getElementById("capture-btn");
+const photoImg = document.getElementById("photo-result");
+const photoPlaceholder = document.getElementById("photo-placeholder");
+const photoDataInput = document.getElementById("photo-data-input"); // <-- hidden input to send photo
+
+if (cameraViewer && typeof Webcam !== "undefined") {
+
+    Webcam.set({
+        width: 320,
+        height: 240,
+        image_format: "jpeg",
+        jpeg_quality: 90
+    });
+    Webcam.attach("#camera-viewer");
+
+    if (captureBtn && photoImg) {
+        captureBtn.addEventListener("click", () => {
+
+            Webcam.snap(function (dataUri) {
+
+                // Show preview image
+                photoImg.src = dataUri;
+                photoImg.style.display = "block";
+
+                if (photoPlaceholder) {
+                    photoPlaceholder.style.display = "none";
+                }
+
+                // IMPORTANT: send image to Flask by hidden input!
+                if (photoDataInput) {
+                    photoDataInput.value = dataUri;
+                }
+            });
+        });
+    }
+}
+
+// QR code part (IDNO -> QR)
+const studentIdInput = document.querySelector("input[name='student_id']");
+const qrBoxStudent = document.getElementById("qrcode-box");
+
+function generateStudentQR(text) {
+    if (!qrBoxStudent || typeof QRCode === "undefined") return;
+    qrBoxStudent.innerHTML = "";
+    if (!text) return;
+    new QRCode(qrBoxStudent, {
+        text: text,
+        width: 180,
+        height: 180
+    });
+}
+
+if (studentIdInput && qrBoxStudent) {
+    generateStudentQR(studentIdInput.value.trim());
+    studentIdInput.addEventListener("input", () => {
+        generateStudentQR(studentIdInput.value.trim());
+    });
+}
+
+
+    // ==========================
     // DELETE CONFIRMATION MODAL
+    // (used for admin users AND students)
     // ==========================
     const deleteModal = document.getElementById("delete-modal");
     const modalCancelBtn = document.getElementById("modal-cancel-btn");

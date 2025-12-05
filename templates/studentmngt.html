@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Student Management</title>
+
+    <!-- W3CSS -->
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+
+    <!-- Shared CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body class="page-body">
+
+    <!-- TOP BAR -->
+    <header class="top-bar">
+        <div class="course-title">PYTHON(19877) 8:00–10:30</div>
+    </header>
+
+    <!-- MAIN LAYOUT -->
+    <div class="admin-layout">
+
+        <!-- LEFT SIDEBAR -->
+        <aside class="admin-sidebar">
+            <a href="{{ url_for('admin') }}" class="admin-sidebar-item">USER MANAGEMENT</a>
+            <a href="{{ url_for('students') }}" class="admin-sidebar-item active">STUDENT MANAGEMENT</a>
+            <a href="{{ url_for('attendance') }}" class="admin-sidebar-item">ATTENDANCE</a>
+            <a href="{{ url_for('logout') }}" class="admin-sidebar-item">LOG OUT</a>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="admin-main">
+
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+
+            <h3 class="admin-section-title">STUDENT MANAGEMENT</h3>
+
+            <div class="admin-grid">
+
+                <!-- LEFT PANEL: STUDENT VIEWER -->
+                <section class="admin-panel admin-user-form">
+                    <h4 class="admin-panel-title">STUDENT VIEWER</h4>
+
+                    <!-- AVATAR CIRCLE -->
+                    <div class="student-photo-placeholder">
+                        <img
+                            id="viewer-photo"
+                            src="{{ url_for('static', filename='images/avatars/default.jpg') }}"
+                            alt="Student photo"
+                            style="width:100%; height:100%; object-fit:cover; display:block;">
+                    </div>
+
+                    <!-- VIEW-ONLY FIELDS -->
+                    <label class="admin-form-label">ID NO</label>
+                    <input class="w3-input w3-border admin-form-input" type="text" id="view-student-idno" readonly>
+
+                    <label class="admin-form-label">LAST NAME</label>
+                    <input class="w3-input w3-border admin-form-input" type="text" id="view-last-name" readonly>
+
+                    <label class="admin-form-label">FIRST NAME</label>
+                    <input class="w3-input w3-border admin-form-input" type="text" id="view-first-name" readonly>
+
+                    <label class="admin-form-label">COURSE</label>
+                    <input class="w3-input w3-border admin-form-input" type="text" id="view-course" readonly>
+
+                    <label class="admin-form-label">LEVEL</label>
+                    <input class="w3-input w3-border admin-form-input" type="text" id="view-level" readonly>
+
+                    <!-- no EDIT button -->
+                </section>
+
+                <!-- RIGHT PANEL: STUDENTS LIST -->
+                <section class="admin-panel admin-user-table">
+
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+                        <h4 class="admin-panel-title" style="margin-bottom:0;">STUDENTS LIST</h4>
+
+                        <!-- ADD Button -->
+                        <a href="{{ url_for('student_form') }}" class="admin-btn-primary">
+                            + ADD STUDENT
+                        </a>
+                    </div>
+
+                    <table class="w3-table w3-bordered w3-striped">
+                        <thead class="admin-table-head">
+                            <tr>
+                                <th>ID</th>
+                                <th>ID NO</th>
+                                <th>LASTNAME</th>
+                                <th>FIRSTNAME</th>
+                                <th>COURSE</th>
+                                <th>LEVEL</th>
+                                <th>ACTION</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for s in students %}
+                            {% set avatar = s.photo_path if s.photo_path else 'images/avatars/default.jpg' %}
+                            <tr>
+                                <td>{{ s.id }}</td>
+                                <td>{{ s.student_id }}</td>
+                                <td>{{ s.last_name }}</td>
+                                <td>{{ s.first_name }}</td>
+                                <td>{{ s.course }}</td>
+                                <td>{{ s.level }}</td>
+
+                                <td>
+                                    <!-- VIEW BUTTON -->
+                                    <button
+                                        type="button"
+                                        class="admin-btn-outline admin-btn-small view-student-btn"
+                                        data-id="{{ s.id }}"
+                                        data-student-id="{{ s.student_id }}"
+                                        data-last-name="{{ s.last_name }}"
+                                        data-first-name="{{ s.first_name }}"
+                                        data-course="{{ s.course }}"
+                                        data-level="{{ s.level }}"
+                                        data-photo="{{ url_for('static', filename=avatar) }}">
+                                        VIEW
+                                    </button>
+
+                                    <!-- EDIT BUTTON -->
+                                    <a href="{{ url_for('student_form', student_id=s.id) }}"
+                                       class="admin-btn-outline admin-btn-small">
+                                        EDIT
+                                    </a>
+
+                                    <!-- DELETE BUTTON -->
+                                    <a href="{{ url_for('delete_student', student_id=s.id) }}"
+                                       class="admin-btn-outline admin-btn-small delete-user-btn"
+                                       data-delete-url="{{ url_for('delete_student', student_id=s.id) }}">
+                                        DELETE
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+
+                    </table>
+                </section>
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <!-- DELETE CONFIRMATION MODAL -->
+    <div id="delete-modal" class="modal-overlay">
+        <div class="modal-dialog">
+            <h3 class="modal-title">Delete student?</h3>
+            <p class="modal-message">
+                Are you sure you want to delete this student record? This action cannot be undone.
+            </p>
+            <div class="modal-actions">
+                <button type="button" id="modal-cancel-btn" class="admin-btn-outline">
+                    Cancel
+                </button>
+                <button type="button" id="modal-confirm-btn" class="admin-btn-primary">
+                    Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+</body>
+</html>

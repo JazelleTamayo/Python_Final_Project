@@ -24,8 +24,13 @@
         <!-- LEFT SIDEBAR -->
         <aside class="admin-sidebar">
             <a href="{{ url_for('admin') }}" class="admin-sidebar-item active">USER MANAGEMENT</a>
-            <a href="#" class="admin-sidebar-item">STUDENT MANAGEMENT</a>
+
+            <!-- ✔ Fixed link -->
+            <a href="{{ url_for('students') }}" class="admin-sidebar-item">STUDENT MANAGEMENT</a>
+
+            <!-- Leave attendance disabled until attendance.html exists -->
             <a href="#" class="admin-sidebar-item">ATTENDANCE</a>
+
             <a href="{{ url_for('logout') }}" class="admin-sidebar-item">LOG OUT</a>
         </aside>
 
@@ -116,7 +121,7 @@
                                         EDIT
                                     </button>
 
-                                    <!-- DELETE now uses modal -->
+                                    <!-- DELETE button triggers modal -->
                                     <a href="{{ url_for('delete_user', user_id=user.id) }}"
                                        class="admin-btn-outline admin-btn-small delete-user-btn"
                                        data-delete-url="{{ url_for('delete_user', user_id=user.id) }}">
@@ -136,7 +141,7 @@
 
     <!-- ============================================
          DELETE CONFIRMATION MODAL
-    ============================================ -->
+         ============================================ -->
     <div class="modal-overlay" id="delete-modal">
         <div class="modal-dialog">
             <h4 class="modal-title">Confirm Delete</h4>

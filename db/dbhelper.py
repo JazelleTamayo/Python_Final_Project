@@ -22,12 +22,14 @@ def get_db():
 
 def init_db():
     """
-    Creates the admins table if it does not exist.
+    Creates the admins and students tables if they do not exist.
     Also inserts a default admin account (if not already created).
     """
     conn = get_db()
 
-    # Create admins table
+    # =====================
+    # ADMIN TABLE
+    # =====================
     conn.execute("""
         CREATE TABLE IF NOT EXISTS admins (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -42,6 +44,23 @@ def init_db():
         VALUES (?, ?);
     """, ("admin@gmail.com", "1234"))
 
+    # =====================
+    # STUDENTS TABLE
+    # (matches your PRAGMA/screenshot)
+    # =====================
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS students (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            student_id TEXT UNIQUE NOT NULL,
+            last_name TEXT NOT NULL,
+            first_name TEXT NOT NULL,
+            course TEXT,
+            level TEXT,
+            photo_path TEXT,
+            qr_value TEXT UNIQUE NOT NULL
+        );
+    """)
+
     conn.commit()
     conn.close()
 
@@ -51,23 +70,14 @@ def init_db():
 # ================================
 
 def get_admin_by_email(email: str):
-    """
-    Returns one admin row by email or None.
-    """
     conn = get_db()
-    cur = conn.execute(
-        "SELECT * FROM admins WHERE email = ?",
-        (email,)
-    )
+    cur = conn.execute("SELECT * FROM admins WHERE email = ?", (email,))
     row = cur.fetchone()
     conn.close()
     return row
 
 
 def create_admin(email: str, password: str):
-    """
-    Inserts a new admin and returns the new admin ID.
-    """
     conn = get_db()
     cur = conn.execute(
         "INSERT INTO admins (email, password) VALUES (?, ?)",
@@ -80,22 +90,14 @@ def create_admin(email: str, password: str):
 
 
 def get_all_admins():
-    """
-    Returns all admins sorted by ID.
-    """
     conn = get_db()
-    cur = conn.execute(
-        "SELECT * FROM admins ORDER BY id ASC"
-    )
+    cur = conn.execute("SELECT * FROM admins ORDER BY id ASC")
     rows = cur.fetchall()
     conn.close()
     return rows
 
 
 def update_admin(admin_id: int, email: str, password: str):
-    """
-    Updates an admin's email and password.
-    """
     conn = get_db()
     conn.execute(
         "UPDATE admins SET email = ?, password = ? WHERE id = ?",
@@ -106,13 +108,95 @@ def update_admin(admin_id: int, email: str, password: str):
 
 
 def delete_admin(admin_id: int):
+    conn = get_db()
+    conn.execute("DELETE FROM admins WHERE id = ?", (admin_id,))
+    conn.commit()
+    conn.close()
+
+
+# ================================
+# STUDENT CRUD OPERATIONS
+# ================================
+
+def get_all_students():
     """
-    Deletes an admin by ID.
+    Returns all students sorted by last name and first name.
     """
     conn = get_db()
-    conn.execute(
-        "DELETE FROM admins WHERE id = ?",
-        (admin_id,)
-    )
+    cur = conn.execute("""
+        SELECT * FROM students
+        ORDER BY last_name, first_name
+    """)
+    rows = cur.fetchall()
+    conn.close()
+    return rows
+
+
+def get_student_by_id(student_id: int):
+    """
+    Returns a single student record by internal numeric ID.
+    """
+    conn = get_db()
+    cur = conn.execute("SELECT * FROM students WHERE id = ?", (student_id,))
+    row = cur.fetchone()
+    conn.close()
+    return row
+
+
+def create_student(student_id: str,
+                   last_name: str,
+                   first_name: str,
+                   course: str,
+                   level: str,
+                   photo_path: str,
+                   qr_value: str):
+    """
+    Inserts a new student row and returns the new ID.
+    """
+    conn = get_db()
+    cur = conn.execute("""
+        INSERT INTO students
+            (student_id, last_name, first_name, course, level, photo_path, qr_value)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    """, (student_id, last_name, first_name, course, level, photo_path, qr_value))
+    conn.commit()
+    new_id = cur.lastrowid
+    conn.close()
+    return new_id
+
+
+def update_student(row_id: int,
+                   student_id: str,
+                   last_name: str,
+                   first_name: str,
+                   course: str,
+                   level: str,
+                   photo_path: str,
+                   qr_value: str):
+    """
+    Updates an existing student row by numeric 'id'.
+    """
+    conn = get_db()
+    conn.execute("""
+        UPDATE students
+        SET student_id = ?,
+            last_name  = ?,
+            first_name = ?,
+            course     = ?,
+            level      = ?,
+            photo_path = ?,
+            qr_value   = ?
+        WHERE id = ?
+    """, (student_id, last_name, first_name, course, level, photo_path, qr_value, row_id))
+    conn.commit()
+    conn.close()
+
+
+def delete_student(row_id: int):
+    """
+    Deletes a student by numeric 'id'.
+    """
+    conn = get_db()
+    conn.execute("DELETE FROM students WHERE id = ?", (row_id,))
     conn.commit()
     conn.close()
