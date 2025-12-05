@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
+
     // ==========================
     // QR SCANNER (index.html)
     // ==========================
@@ -18,11 +19,9 @@ document.addEventListener("DOMContentLoaded", function () {
             } else if (mode === "error") {
                 statusDotEl.classList.add("status-error");
             }
-            // default "info" uses base yellow color
         }
     }
 
-    // Run QR logic ONLY if we’re on index.html
     if (qrDiv) {
         console.log("Html5Qrcode is:", typeof Html5Qrcode);
 
@@ -30,6 +29,7 @@ document.addEventListener("DOMContentLoaded", function () {
             console.error("Html5Qrcode library NOT loaded.");
             alert("QR library failed to load. Check console for details.");
             setStatus("QR library failed to load.", "error");
+
         } else {
             setStatus("Initializing camera...");
 
@@ -56,7 +56,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                 }
 
-                // temporary success state
                 setStatus("QR code detected!", "success");
                 setTimeout(() => {
                     setStatus("Scanning... hold QR code steady.");
@@ -64,7 +63,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             function onError(err) {
-                // scan errors ignored
+                // Ignore scan errors
             }
 
             Html5Qrcode.getCameras()
@@ -101,18 +100,15 @@ document.addEventListener("DOMContentLoaded", function () {
     const tabs = document.querySelectorAll(".auth-tab");
     const forms = document.querySelectorAll(".auth-form");
 
-    // Only run this on login.html
     if (tabs.length > 0 && forms.length > 0) {
         tabs.forEach(tab => {
             tab.addEventListener("click", () => {
                 const targetSelector = tab.getAttribute("data-target");
                 const targetForm = document.querySelector(targetSelector);
 
-                // active tab styling
                 tabs.forEach(t => t.classList.remove("active"));
                 tab.classList.add("active");
 
-                // show/hide forms
                 forms.forEach(f => f.classList.add("auth-form-hidden"));
                 if (targetForm) {
                     targetForm.classList.remove("auth-form-hidden");
@@ -120,4 +116,108 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         });
     }
+
+    // ==========================
+    // PASSWORD TOGGLE (eye icon)
+    // ==========================
+    const toggleButtons = document.querySelectorAll(".password-toggle-btn");
+
+    toggleButtons.forEach(btn => {
+        const targetId = btn.getAttribute("data-password-toggle");
+        if (!targetId) return;
+
+        const input = document.getElementById(targetId);
+        if (!input) return;
+
+        btn.addEventListener("click", () => {
+            if (input.type === "password") {
+                input.type = "text";
+                btn.textContent = "🙈";
+            } else {
+                input.type = "password";
+                btn.textContent = "👁";
+            }
+        });
+    });
+
+    // ==========================
+    // ADMIN INLINE EDIT (admin.html)
+    // ==========================
+    const adminForm = document.querySelector(".admin-user-form form");
+
+    if (adminForm) {
+        const idInput = adminForm.querySelector("#admin-user-id");
+        const emailInput = adminForm.querySelector("input[name='email']");
+        const passwordInput = adminForm.querySelector("input[name='password']");
+        const submitBtn = adminForm.querySelector("#admin-submit-btn");
+        const titleEl = document.getElementById("admin-form-title");
+
+        const editButtons = document.querySelectorAll(".edit-user-btn");
+
+        editButtons.forEach(btn => {
+            btn.addEventListener("click", () => {
+                const id = btn.getAttribute("data-id");
+                const email = btn.getAttribute("data-email");
+                const password = btn.getAttribute("data-password");
+
+                if (idInput) idInput.value = id || "";
+                if (emailInput) emailInput.value = email || "";
+                if (passwordInput) passwordInput.value = password || "";
+
+                if (submitBtn) submitBtn.textContent = "UPDATE";
+                if (titleEl) titleEl.textContent = "EDIT USER";
+            });
+        });
+    }
+
+    // ==========================
+    // DELETE CONFIRMATION MODAL
+    // ==========================
+    const deleteModal = document.getElementById("delete-modal");
+    const modalCancelBtn = document.getElementById("modal-cancel-btn");
+    const modalConfirmBtn = document.getElementById("modal-confirm-btn");
+    const deleteButtons = document.querySelectorAll(".delete-user-btn");
+
+    let pendingDeleteUrl = null;
+
+    if (deleteModal && modalCancelBtn && modalConfirmBtn && deleteButtons.length > 0) {
+
+        deleteButtons.forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                e.preventDefault(); // Prevent immediate navigation
+
+                pendingDeleteUrl = btn.getAttribute("data-delete-url") || btn.href;
+
+                deleteModal.classList.add("show");
+            });
+        });
+
+        modalCancelBtn.addEventListener("click", () => {
+            deleteModal.classList.remove("show");
+            pendingDeleteUrl = null;
+        });
+
+        modalConfirmBtn.addEventListener("click", () => {
+            if (pendingDeleteUrl) {
+                window.location.href = pendingDeleteUrl;
+            }
+        });
+
+        // Clicking outside closes modal
+        deleteModal.addEventListener("click", (e) => {
+            if (e.target === deleteModal) {
+                deleteModal.classList.remove("show");
+                pendingDeleteUrl = null;
+            }
+        });
+
+        // ESC key closes modal
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && deleteModal.classList.contains("show")) {
+                deleteModal.classList.remove("show");
+                pendingDeleteUrl = null;
+            }
+        });
+    }
+
 });

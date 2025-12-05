@@ -47,13 +47,21 @@
                 <input type="hidden" name="form_type" value="login">
 
                 <div class="form-group">
-                    <label for="login-username">Username</label>
-                    <input type="text" id="login-username" name="username" placeholder="Enter username" required>
+                    <label for="login-email">Email Address</label>
+                    <input type="email" id="login-email" name="email" placeholder="Enter your email" required>
                 </div>
 
                 <div class="form-group">
                     <label for="login-password">Password</label>
-                    <input type="password" id="login-password" name="password" placeholder="Enter password" required>
+                    <div class="password-wrapper">
+                        <input type="password" id="login-password" name="password" placeholder="Enter your password" required>
+                        <button
+                            type="button"
+                            class="password-toggle-btn"
+                            data-password-toggle="login-password">
+                            👁
+                        </button>
+                    </div>
                 </div>
 
                 <button type="submit" class="primary-btn">Login</button>
@@ -64,18 +72,34 @@
                 <input type="hidden" name="form_type" value="register">
 
                 <div class="form-group">
-                    <label for="reg-username">New Username</label>
-                    <input type="text" id="reg-username" name="username" placeholder="Choose a username" required>
+                    <label for="reg-email">Email Address</label>
+                    <input type="email" id="reg-email" name="email" placeholder="Enter your email" required>
                 </div>
 
                 <div class="form-group">
                     <label for="reg-password">Password</label>
-                    <input type="password" id="reg-password" name="password" placeholder="Create a password" required>
+                    <div class="password-wrapper">
+                        <input type="password" id="reg-password" name="password" placeholder="Create a password" required>
+                        <button
+                            type="button"
+                            class="password-toggle-btn"
+                            data-password-toggle="reg-password">
+                            👁
+                        </button>
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label for="reg-confirm-password">Confirm Password</label>
-                    <input type="password" id="reg-confirm-password" name="confirm_password" placeholder="Re-enter password" required>
+                    <div class="password-wrapper">
+                        <input type="password" id="reg-confirm-password" name="confirm_password" placeholder="Re-enter password" required>
+                        <button
+                            type="button"
+                            class="password-toggle-btn"
+                            data-password-toggle="reg-confirm-password">
+                            👁
+                        </button>
+                    </div>
                 </div>
 
                 <button type="submit" class="primary-btn">Create Account</button>
@@ -90,7 +114,8 @@
         ©copyright Tamayo&amp;Sermonia
     </footer>
 
-    <!-- Load shared JS (scanner + auth tabs) -->
+    <!-- Load shared JS -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
 </body>
 </html>

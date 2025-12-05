@@ -9,12 +9,16 @@
 .top-bar {
     background-color: #000;
     color: #fff;
-    padding: 10px 20px;
+    /* fixed height so all top bars look identical */
+    height: 56px;              /* <<< you can tweak this number */
+    padding: 0 20px;           /* horizontal padding only */
     display: flex;
-    align-items: center;
+    align-items: center;       /* centers text vertically */
     justify-content: space-between;
     box-sizing: border-box;
 }
+
+
 
 .course-title {
     font-weight: bold;
@@ -60,12 +64,11 @@
     border: 4px solid #000;
     background-color: #fff;
     box-sizing: border-box;
-    position: relative;      /* for the scan-line overlay */
+    position: relative;
     overflow: hidden;
     border-radius: 12px;
 }
 
-/* moving scan line inside the QR box */
 .qr-box::before {
     content: "";
     position: absolute;
@@ -101,25 +104,25 @@
     width: 9px;
     height: 9px;
     border-radius: 50%;
-    background-color: #ffc107; /* neutral: initializing/scanning */
+    background-color: #ffc107;
     animation: status-pulse 1.5s ease-in-out infinite;
 }
 
 .status-dot.status-success {
-    background-color: #00c851; /* green */
+    background-color: #00c851;
 }
 
 .status-dot.status-error {
-    background-color: #ff4444; /* red */
+    background-color: #ff4444;
 }
 
 @keyframes status-pulse {
-    0%   { transform: scale(1);   opacity: 1; }
+    0%   { transform: scale(1); opacity: 1; }
     50%  { transform: scale(1.4); opacity: 0.3; }
-    100% { transform: scale(1);   opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
 }
 
-/* result box under QR (unchanged) */
+/* result box under QR */
 .scan-result {
     margin: 20px auto 0 auto;
     width: 60%;
@@ -132,7 +135,7 @@
     font-size: 14px;
 }
 
-/* horizontal line under the square */
+/* horizontal line */
 .center-line {
     width: 60%;
     margin: 30px auto 0 auto;
@@ -146,16 +149,6 @@
     font-size: 12px;
     margin-top: 40px;
     padding-bottom: 20px;
-}
-
-.scan-link {
-    color: #0066cc;
-    font-weight: bold;
-    text-decoration: underline;
-}
-
-.scan-link:hover {
-    color: #004a99;
 }
 
 /* AUTH CARD (Login/Register Page) */
@@ -240,6 +233,37 @@
     border-color: #000;
 }
 
+/* ================================
+   PASSWORD INPUT + EYE ICON
+   ================================ */
+.password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-wrapper input[type="password"],
+.password-wrapper input[type="text"] {
+    padding-right: 2.6rem;
+}
+
+.password-toggle-btn {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    padding: 0;
+    line-height: 1;
+}
+
+.password-toggle-btn:focus {
+    outline: none;
+}
+
 /* Buttons */
 .primary-btn {
     width: 100%;
@@ -285,4 +309,179 @@
 .flash-info {
     background-color: #EAF2FF;
     border-color: #83A8E5;
+}
+
+/* ADMIN LAYOUT */
+.admin-layout {
+    display: flex;
+    min-height: calc(100vh - 60px);
+}
+
+.admin-sidebar {
+    width: 220px;
+    border-right: 4px solid #000;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    padding-top: 25px;
+}
+
+.admin-sidebar-item {
+    padding: 10px 24px;
+    text-align: left;
+    font-weight: bold;
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.admin-sidebar-item:hover {
+    background-color: #e0e0e0;
+}
+
+.admin-main {
+    flex: 1;
+    padding: 30px;
+}
+
+.admin-section-title {
+    text-align: left;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.admin-grid {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.admin-panel {
+    background-color: #fff;
+    border: 4px solid #000;
+    border-radius: 8px;
+    padding: 18px 18px 20px 18px;
+    box-sizing: border-box;
+}
+
+.admin-user-form {
+    width: 35%;
+}
+
+.admin-user-table {
+    width: 65%;
+}
+
+.admin-panel-title {
+    font-weight: bold;
+    margin-bottom: 12px;
+    border-bottom: 3px solid #000;
+    padding-bottom: 4px;
+}
+
+.admin-form-label {
+    display: block;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.admin-form-input {
+    margin-top: 4px;
+    margin-bottom: 8px;
+}
+
+.admin-form-buttons {
+    margin-top: 18px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.admin-btn-outline {
+    padding: 6px 20px;
+    border: 2px solid #000;
+    background-color: #fff;
+    color: #000;
+    font-weight: bold;
+    font-size: 13px;
+    text-decoration: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.admin-btn-outline:hover {
+    background-color: #e0e0e0;
+}
+
+.admin-btn-small {
+    padding: 4px 10px;
+    font-size: 12px;
+    margin-right: 4px;
+}
+
+.admin-table-head th {
+    background-color: #f5f5f5;
+    font-weight: bold;
+    border-bottom: 2px solid #000;
+}
+
+.logout-btn {
+    padding: 6px 24px;
+    border: 2px solid #fff;
+    background-color: #fff;
+    color: #000;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 13px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.logout-btn:hover {
+    background-color: #e0e0e0;
+}
+
+/* ================================
+   DELETE CONFIRMATION MODAL
+   ================================ */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: none; /* hidden by default */
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+
+.modal-overlay.show {
+    display: flex;
+}
+
+.modal-dialog {
+    background: #fff;
+    border-radius: 8px;
+    border: 4px solid #000;
+    padding: 20px 22px 18px 22px;
+    max-width: 380px;
+    width: 90%;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    box-sizing: border-box;
+}
+
+.modal-title {
+    margin: 0 0 8px 0;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.modal-message {
+    margin: 0 0 18px 0;
+    font-size: 14px;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
 }

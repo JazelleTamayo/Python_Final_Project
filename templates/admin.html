@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Management</title>
+
+    <!-- W3CSS -->
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+
+    <!-- Your shared CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body class="page-body">
+
+    <!-- TOP BAR -->
+    <header class="top-bar">
+        <div class="course-title">PYTHON(19877) 8:00–10:30</div>
+    </header>
+
+    <!-- ADMIN LAYOUT -->
+    <div class="admin-layout">
+
+        <!-- LEFT SIDEBAR -->
+        <aside class="admin-sidebar">
+            <a href="{{ url_for('admin') }}" class="admin-sidebar-item active">USER MANAGEMENT</a>
+            <a href="#" class="admin-sidebar-item">STUDENT MANAGEMENT</a>
+            <a href="#" class="admin-sidebar-item">ATTENDANCE</a>
+            <a href="{{ url_for('logout') }}" class="admin-sidebar-item">LOG OUT</a>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="admin-main">
+
+            <!-- Flash messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <h3 class="admin-section-title">USER MANAGEMENT</h3>
+
+            <div class="admin-grid">
+
+                <!-- USER FORM PANEL -->
+                <section class="admin-panel admin-user-form">
+                    <h4 class="admin-panel-title" id="admin-form-title">USER</h4>
+
+                    <form method="post">
+                        <!-- Hidden field: empty = create, filled = edit -->
+                        <input type="hidden" name="user_id" id="admin-user-id">
+
+                        <label class="admin-form-label">EMAIL</label>
+                        <input
+                            class="w3-input w3-border admin-form-input"
+                            type="email"
+                            name="email"
+                            required>
+
+                        <label class="admin-form-label">PASSWORD</label>
+                        <div class="password-wrapper">
+                            <input
+                                class="w3-input w3-border admin-form-input"
+                                type="password"
+                                name="password"
+                                id="admin-create-password"
+                                required>
+                            <button
+                                type="button"
+                                class="password-toggle-btn"
+                                data-password-toggle="admin-create-password">
+                                👁
+                            </button>
+                        </div>
+
+                        <div class="admin-form-buttons">
+                            <a href="{{ url_for('admin') }}" class="admin-btn-outline">CANCEL</a>
+                            <button type="submit" class="admin-btn-primary" id="admin-submit-btn">
+                                SAVE
+                            </button>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- USER TABLE PANEL -->
+                <section class="admin-panel admin-user-table">
+                    <h4 class="admin-panel-title">USERS LIST</h4>
+
+                    <table class="w3-table w3-bordered w3-striped">
+                        <thead class="admin-table-head">
+                            <tr>
+                                <th>ID</th>
+                                <th>EMAIL</th>
+                                <th>PASSWORD</th>
+                                <th>ACTIONS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            <tr>
+                                <td>{{ user.id }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>********</td>
+                                <td>
+                                    <button
+                                        type="button"
+                                        class="admin-btn-outline admin-btn-small edit-user-btn"
+                                        data-id="{{ user.id }}"
+                                        data-email="{{ user.email }}"
+                                        data-password="{{ user.password }}">
+                                        EDIT
+                                    </button>
+
+                                    <!-- DELETE now uses modal -->
+                                    <a href="{{ url_for('delete_user', user_id=user.id) }}"
+                                       class="admin-btn-outline admin-btn-small delete-user-btn"
+                                       data-delete-url="{{ url_for('delete_user', user_id=user.id) }}">
+                                        DELETE
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </section>
+
+            </div>
+        </main>
+
+    </div>
+
+    <!-- ============================================
+         DELETE CONFIRMATION MODAL
+    ============================================ -->
+    <div class="modal-overlay" id="delete-modal">
+        <div class="modal-dialog">
+            <h4 class="modal-title">Confirm Delete</h4>
+            <p class="modal-message">
+                Are you sure you want to delete this user? This action cannot be undone.
+            </p>
+
+            <div class="modal-actions">
+                <button type="button" class="admin-btn-outline" id="modal-cancel-btn">
+                    CANCEL
+                </button>
+
+                <button type="button" class="admin-btn-primary" id="modal-confirm-btn">
+                    DELETE
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
