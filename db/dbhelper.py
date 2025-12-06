@@ -22,7 +22,7 @@ def get_db():
 
 def init_db():
     """
-    Creates the admins and students tables if they do not exist.
+    Creates the admins, students, and attendance tables if they do not exist.
     Also inserts a default admin account (if not already created).
     """
     conn = get_db()
@@ -46,7 +46,6 @@ def init_db():
 
     # =====================
     # STUDENTS TABLE
-    # (matches your PRAGMA/screenshot)
     # =====================
     conn.execute("""
         CREATE TABLE IF NOT EXISTS students (
@@ -58,6 +57,19 @@ def init_db():
             level TEXT,
             photo_path TEXT,
             qr_value TEXT UNIQUE NOT NULL
+        );
+    """)
+
+    # =====================
+    # ATTENDANCE TABLE (NEW)
+    # =====================
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS attendance (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            student_id INTEGER NOT NULL,   -- FK -> students.id
+            date TEXT NOT NULL,            -- 'YYYY-MM-DD'
+            time_in TEXT NOT NULL,         -- e.g. '08:05 AM'
+            FOREIGN KEY (student_id) REFERENCES students(id)
         );
     """)
 
@@ -143,6 +155,18 @@ def get_student_by_id(student_id: int):
     return row
 
 
+def get_student_by_student_id(student_id_str: str):
+    """
+    Returns student row by their public IDNO (student_id column).
+    Useful when your QR scan gives you the IDNO string.
+    """
+    conn = get_db()
+    cur = conn.execute("SELECT * FROM students WHERE student_id = ?", (student_id_str,))
+    row = cur.fetchone()
+    conn.close()
+    return row
+
+
 def create_student(student_id: str,
                    last_name: str,
                    first_name: str,
@@ -200,3 +224,62 @@ def delete_student(row_id: int):
     conn.execute("DELETE FROM students WHERE id = ?", (row_id,))
     conn.commit()
     conn.close()
+
+
+# ================================
+# ATTENDANCE OPERATIONS (NEW)
+# ================================
+
+def record_attendance(student_row_id: int, date_str: str, time_in_str: str):
+    """
+    Inserts a new attendance row.
+    Called when a QR is successfully scanned.
+    """
+    conn = get_db()
+    conn.execute("""
+        INSERT INTO attendance (student_id, date, time_in)
+        VALUES (?, ?, ?)
+    """, (student_row_id, date_str, time_in_str))
+    conn.commit()
+    conn.close()
+
+
+def get_attendance_by_date(date_str: str):
+    """
+    Returns attendance + joined student data for a given date.
+    Used by /attendance route to populate the table.
+    """
+    conn = get_db()
+    cur = conn.execute("""
+        SELECT
+            a.id,
+            a.time_in,
+            s.student_id,
+            s.first_name,
+            s.last_name,
+            s.course,
+            s.level
+        FROM attendance a
+        JOIN students s ON a.student_id = s.id
+        WHERE a.date = ?
+        ORDER BY s.last_name, s.first_name
+    """, (date_str,))
+    rows = cur.fetchall()
+    conn.close()
+    return rows
+
+def get_attendance_for_student_on_date(student_row_id: int, date_str: str):
+    """
+    Returns a single attendance row for a given student + date
+    (or None if no attendance yet).
+    Used to avoid duplicate attendance for the same day.
+    """
+    conn = get_db()
+    cur = conn.execute("""
+        SELECT * FROM attendance
+        WHERE student_id = ? AND date = ?
+        LIMIT 1
+    """, (student_row_id, date_str))
+    row = cur.fetchone()
+    conn.close()
+    return row

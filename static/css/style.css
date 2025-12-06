@@ -637,3 +637,297 @@
     justify-content: center;
     margin-top: 8px;
 }
+
+/* attendancee */
+.sidebar {
+    width: 220px;
+    background-color: #f4f4f4;
+    padding-top: 20px;
+    position: fixed;
+    height: 100%;
+    box-sizing: border-box;
+	color: #fff;
+	
+}
+
+.sidebar-item {
+    display: block;
+    padding: 12px 20px;
+    font-weight: bold;
+    color: #333;
+    text-decoration: none;
+    margin-bottom: 12px;
+
+}
+
+.sidebar-item:hover {
+    background-color: #e0e0e0;
+}
+
+.sidebar-item.active {
+    background-color: #ccc;
+}
+
+/* MAIN CONTENT */
+.container {
+    display: flex;
+    margin-top: 60px; /* Space for fixed top bar */
+}
+
+.main-content {
+    margin-left: 240px; /* Account for the sidebar width */
+    padding: 80px 20px 20px 20px;
+    flex: 1;
+}
+
+/* Date Input Section */
+.date-section {
+    margin-bottom: 20px;
+}
+
+.date-section form {
+    display: flex;
+    align-items: center;
+}
+
+.date-section input[type="date"] {
+    padding: 8px;
+    font-size: 14px;
+    border-radius: 6px;
+    border: 1px solid #bbb;
+    outline: none;
+    margin-right: 10px;
+}
+
+.date-section button {
+    padding: 8px 20px;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 6px;
+    background-color: #000;
+    color: #fff;
+    border: none;
+}
+
+.date-section button:hover {
+    background-color: #444;
+}
+
+/* ATTENDANCE TABLE */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+table, th, td {
+    border: 1px solid #ccc;
+}
+
+th, td {
+    padding: 10px;
+    text-align: center;
+}
+
+th {
+    background-color: #f0f0f0;
+}
+
+/* Table Header */
+table thead th {
+    font-weight: bold;
+    background-color: #f0f0f0;
+}
+
+/* Table Body */
+table tbody td {
+    text-align: left;
+}
+
+/* FOOTER */
+.footer {
+    text-align: center;
+    font-size: 12px;
+    margin-top: 20px;
+    padding-bottom: 20px;
+}
+
+/* Logout Button in Top Bar */
+.login-btn {
+    padding: 6px 24px;
+    border: 2px solid #fff;
+    background-color: #fff;
+    color: #000;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 13px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.login-btn:hover {
+    background-color: #e0e0e0;
+}
+
+/* Active item in left admin sidebar for Attendance */
+.admin-sidebar-item.admin-sidebar-item-active {
+    background-color: #000;
+    color: #fff;
+}
+
+/* Attendance controls (date + button) */
+.attendance-controls {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 16px;
+}
+
+.attendance-controls form {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.attendance-date-label {
+    font-weight: bold;
+    font-size: 13px;
+    text-transform: uppercase;
+}
+
+/* Make the date picker fit with other inputs */
+.attendance-controls input[type="date"] {
+    padding: 8px 10px;
+    font-size: 14px;
+    border-radius: 6px;
+    border: 1px solid #bbb;
+    outline: none;
+}
+
+.attendance-controls input[type="date"]:focus {
+    border-color: #000;
+}
+
+/* Smaller GO button to match style */
+.attendance-go-btn {
+    padding: 8px 20px;
+    font-size: 13px;
+}
+
+/* Attendance table styling (inside admin panel) */
+.attendance-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 6px;
+    font-size: 14px;
+}
+
+.attendance-table th,
+.attendance-table td {
+    border: 1px solid #ccc;
+    padding: 8px 10px;
+}
+
+.attendance-table thead th {
+    background-color: #f5f5f5;
+    font-weight: 700;
+    text-align: left;
+}
+
+.attendance-table tbody tr:nth-child(even) {
+    background-color: #fafafa;
+}
+
+.attendance-table tbody tr:hover {
+    background-color: #f0f0f0;
+}
+
+/* Wrap table nicely inside panel */
+.attendance-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* ============================================================
+   QR PAGE (index.html)
+   ============================================================ */
+
+/* ---------- LAYOUT: Scanner (left) + Student Info Card (right) ---------- */
+.qr-layout {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+
+/* ============================================================
+   STUDENT INFO CARD (Right Side, 3-second popup)
+   ============================================================ */
+
+/* Wrapper box */
+.scan-student-card {
+    border: 1px solid #ccc;
+    padding: 12px;
+    border-radius: 6px;
+    min-width: 220px;
+    opacity: 0;                 /* hidden by default */
+    transition: opacity 0.2s ease;
+}
+
+/* Shown state (added by JS) */
+.scan-student-card.show {
+    opacity: 1;
+}
+
+/* Photo circle */
+.scan-photo-wrapper {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin: 0 auto 8px auto;
+    background: #eee;
+}
+
+/* Inside photo */
+.scan-photo-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Each row in student info */
+.scan-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 4px;
+}
+
+/* Label (LEFT) */
+.scan-label {
+    font-weight: bold;
+}
+
+/* Value (RIGHT) */
+.scan-value {
+    font-weight: 500;
+    color: #333;
+    text-align: right;
+    flex: 1;
+    padding-left: 10px;
+}
+
+/* Info text under student card (e.g., “Student not found”) */
+.scan-info-message {
+    font-size: 13px;
+    margin-top: 8px;
+}
+
+/* Footnote below card */
+.scan-note {
+    font-size: 11px;
+    color: #666;
+    margin-top: 5px;
+}

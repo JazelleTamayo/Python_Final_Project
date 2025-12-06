@@ -62,22 +62,15 @@
                         <div class="oval-title">RESULT</div>
 
                         <div class="photo-result-box">
-                            <img
-                                id="photo-result"
-                                alt="Captured photo"
-                                {% if student and student.photo_path %}
-                                    src="{{ url_for('static', filename=student.photo_path) }}"
-                                    style="display:block;"
-                                {% else %}
-                                    style="display:none;"
-                                {% endif %}
-                            >
-                            <span
-                                id="photo-placeholder"
-                                style="font-size:12px;color:#777; {% if student and student.photo_path %}display:none;{% endif %}">
+                            <!-- Always hidden at first, no src -->
+                            <img id="photo-result" alt="Captured photo" style="display:none;">
+
+                            <!-- Always show "No photo captured" at first -->
+                            <span id="photo-placeholder" style="font-size:12px;color:#777;">
                                 No photo captured
                             </span>
                         </div>
+
                     </div>
                 </div>
 
@@ -98,11 +91,16 @@
                     <label class="admin-form-label">COURSE</label>
                     <select class="w3-input w3-border admin-form-input" name="course">
                         <option value="" disabled {% if not student %}selected{% endif %}>Select Course</option>
-                        <option value="BSIT" {% if student and student.course=="BSIT" %}selected{% endif %}>BSIT</option>
-                        <option value="BSCS" {% if student and student.course=="BSCS" %}selected{% endif %}>BSCS</option>
-                        <option value="BSHM" {% if student and student.course=="BSHM" %}selected{% endif %}>BSHM</option>
-                        <option value="BSTM" {% if student and student.course=="BSTM" %}selected{% endif %}>BSTM</option>
-                        <option value="BSED" {% if student and student.course=="BSED" %}selected{% endif %}>BSED</option>
+                        <option value="BSIT" {% if student and student.course=="BSIT" %}selected{% endif %}>BSIT
+                        </option>
+                        <option value="BSCS" {% if student and student.course=="BSCS" %}selected{% endif %}>BSCS
+                        </option>
+                        <option value="BSHM" {% if student and student.course=="BSHM" %}selected{% endif %}>BSHM
+                        </option>
+                        <option value="BSTM" {% if student and student.course=="BSTM" %}selected{% endif %}>BSTM
+                        </option>
+                        <option value="BSED" {% if student and student.course=="BSED" %}selected{% endif %}>BSED
+                        </option>
                     </select>
 
                     <label class="admin-form-label">LEVEL</label>

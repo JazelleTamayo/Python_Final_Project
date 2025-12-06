@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body class="page-body">
+
+    <!-- TOP BAR -->
+    <div class="top-bar">
+        <div class="course-title">PYTHON(19877) 8:00-10:30</div>
+    </div>
+
+    <!-- ADMIN LAYOUT -->
+    <div class="admin-layout">
+
+        <!-- SIDEBAR -->
+        <aside class="admin-sidebar">
+            <a href="{{ url_for('admin') }}" class="admin-sidebar-item">USER MANAGEMENT</a>
+            <a href="{{ url_for('students') }}" class="admin-sidebar-item">STUDENT MANAGEMENT</a>
+            <a href="{{ url_for('attendance') }}" class="admin-sidebar-item admin-sidebar-item-active">ATTENDANCE</a>
+            <a href="{{ url_for('logout') }}" class="admin-sidebar-item">LOG OUT</a>
+        </aside>
+
+        <!-- MAIN PANEL -->
+        <main class="admin-main">
+
+            <h2 class="admin-section-title">Attendance</h2>
+
+            <div class="admin-panel">
+                <div class="admin-panel-title">Attendance List</div>
+
+                <!-- DATE FILTER -->
+                <div class="attendance-controls">
+                    <form method="GET" action="{{ url_for('attendance') }}">
+                        <label for="date" class="attendance-date-label">DATE</label>
+                        <input type="date" id="date" name="date"
+                               value="{{ selected_date|default('', true) }}">
+                        <button type="submit" class="admin-btn-primary attendance-go-btn">GO</button>
+                    </form>
+                </div>
+
+                <!-- TABLE -->
+                <div class="attendance-table-wrapper">
+                    <table class="attendance-table">
+                        <thead class="admin-table-head">
+                            <tr>
+                                <th>ID</th>
+                                <th>TIME-IN</th>
+                                <th>NAME</th>
+                                <th>COURSE &amp; LEVEL</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if records and records|length > 0 %}
+                                {% for row in records %}
+                                <tr>
+                                    <td>{{ row.id }}</td>
+                                    <td>{{ row.time_in }}</td>
+                                    <td>{{ row.name }}</td>
+                                    <td>{{ row.course_level }}</td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="4" class="attendance-empty">
+                                        No attendance records for this date.
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <p class="attendance-note">
+                    NOTE: You can choose a date and view the data in the table for the selected date (alphabetical order).
+                </p>
+
+            </div>
+
+        </main>
+
+    </div>
+
+</body>
+
+</html>

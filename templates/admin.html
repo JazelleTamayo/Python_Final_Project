@@ -29,7 +29,8 @@
             <a href="{{ url_for('students') }}" class="admin-sidebar-item">STUDENT MANAGEMENT</a>
 
             <!-- Leave attendance disabled until attendance.html exists -->
-            <a href="#" class="admin-sidebar-item">ATTENDANCE</a>
+            <a href="{{ url_for('attendance') }}" class="admin-sidebar-item">ATTENDANCE</a>
+
 
             <a href="{{ url_for('logout') }}" class="admin-sidebar-item">LOG OUT</a>
         </aside>
