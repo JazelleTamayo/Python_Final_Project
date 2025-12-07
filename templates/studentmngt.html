@@ -54,11 +54,8 @@
 
                     <!-- AVATAR CIRCLE -->
                     <div class="student-photo-placeholder">
-                        <img
-                            id="viewer-photo"
-                            src="{{ url_for('static', filename='images/avatars/default.jpg') }}"
-                            alt="Student photo"
-                            style="width:100%; height:100%; object-fit:cover; display:block;">
+                        <img id="viewer-photo" src="{{ url_for('static', filename='images/avatars/default.jpg') }}"
+                            alt="Student photo" style="width:100%; height:100%; object-fit:cover; display:block;">
                     </div>
 
                     <!-- VIEW-ONLY FIELDS -->
@@ -109,7 +106,8 @@
                             {% for s in students %}
                             {% set avatar = s.photo_path if s.photo_path else 'images/avatars/default.jpg' %}
                             <tr>
-                                <td>{{ s.id }}</td>
+                                <td>{{ loop.index }}</td> <!-- DISPLAY NUMBERING (1,2,3...) -->
+
                                 <td>{{ s.student_id }}</td>
                                 <td>{{ s.last_name }}</td>
                                 <td>{{ s.first_name }}</td>
@@ -117,30 +115,22 @@
                                 <td>{{ s.level }}</td>
 
                                 <td>
-                                    <!-- VIEW BUTTON -->
-                                    <button
-                                        type="button"
-                                        class="admin-btn-outline admin-btn-small view-student-btn"
-                                        data-id="{{ s.id }}"
-                                        data-student-id="{{ s.student_id }}"
-                                        data-last-name="{{ s.last_name }}"
-                                        data-first-name="{{ s.first_name }}"
-                                        data-course="{{ s.course }}"
-                                        data-level="{{ s.level }}"
+                                    <button type="button" class="admin-btn-outline admin-btn-small view-student-btn"
+                                        data-id="{{ s.id }}" data-student-id="{{ s.student_id }}"
+                                        data-last-name="{{ s.last_name }}" data-first-name="{{ s.first_name }}"
+                                        data-course="{{ s.course }}" data-level="{{ s.level }}"
                                         data-photo="{{ url_for('static', filename=avatar) }}">
                                         VIEW
                                     </button>
 
-                                    <!-- EDIT BUTTON -->
                                     <a href="{{ url_for('student_form', student_id=s.id) }}"
-                                       class="admin-btn-outline admin-btn-small">
+                                        class="admin-btn-outline admin-btn-small">
                                         EDIT
                                     </a>
 
-                                    <!-- DELETE BUTTON -->
                                     <a href="{{ url_for('delete_student', student_id=s.id) }}"
-                                       class="admin-btn-outline admin-btn-small delete-user-btn"
-                                       data-delete-url="{{ url_for('delete_student', student_id=s.id) }}">
+                                        class="admin-btn-outline admin-btn-small delete-user-btn"
+                                        data-delete-url="{{ url_for('delete_student', student_id=s.id) }}">
                                         DELETE
                                     </a>
                                 </td>
@@ -179,4 +169,5 @@
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 
 </body>
+
 </html>

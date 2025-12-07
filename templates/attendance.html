@@ -3,22 +3,26 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Attendance Management</title>
+    <title>Attendance</title>
+
+    <!-- W3CSS -->
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+
+    <!-- Shared CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 
 <body class="page-body">
 
     <!-- TOP BAR -->
-    <div class="top-bar">
-        <div class="course-title">PYTHON(19877) 8:00-10:30</div>
-    </div>
+    <header class="top-bar">
+        <div class="course-title">PYTHON(19877) 8:00–10:30</div>
+    </header>
 
-    <!-- ADMIN LAYOUT -->
+    <!-- MAIN LAYOUT -->
     <div class="admin-layout">
 
-        <!-- SIDEBAR -->
+        <!-- LEFT SIDEBAR -->
         <aside class="admin-sidebar">
             <a href="{{ url_for('admin') }}" class="admin-sidebar-item">USER MANAGEMENT</a>
             <a href="{{ url_for('students') }}" class="admin-sidebar-item">STUDENT MANAGEMENT</a>
@@ -26,49 +30,73 @@
             <a href="{{ url_for('logout') }}" class="admin-sidebar-item">LOG OUT</a>
         </aside>
 
-        <!-- MAIN PANEL -->
+        <!-- MAIN CONTENT -->
         <main class="admin-main">
 
-            <h2 class="admin-section-title">Attendance</h2>
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
 
-            <div class="admin-panel">
-                <div class="admin-panel-title">Attendance List</div>
+            <h3 class="admin-section-title">ATTENDANCE</h3>
+
+            <section class="admin-panel">
 
                 <!-- DATE FILTER -->
                 <div class="attendance-controls">
-                    <form method="GET" action="{{ url_for('attendance') }}">
-                        <label for="date" class="attendance-date-label">DATE</label>
-                        <input type="date" id="date" name="date"
-                               value="{{ selected_date|default('', true) }}">
-                        <button type="submit" class="admin-btn-primary attendance-go-btn">GO</button>
+                    <!-- VERY IMPORTANT: method="get" and name="date" -->
+                    <form method="get" action="{{ url_for('attendance') }}">
+                        <span class="attendance-date-label">DATE</span>
+                        <input
+                            type="date"
+                            name="date"
+                            value="{{ selected_date }}"
+                            required
+                            onchange="this.form.submit();"
+                        >
+                        <button type="submit" class="admin-btn-primary attendance-go-btn">
+                            GO
+                        </button>
                     </form>
                 </div>
+
+                <p style="font-size: 13px; margin-bottom: 6px;">
+                    Showing attendance for: <strong>{{ selected_date }}</strong>
+                </p>
 
                 <!-- TABLE -->
                 <div class="attendance-table-wrapper">
                     <table class="attendance-table">
-                        <thead class="admin-table-head">
+                        <thead>
                             <tr>
-                                <th>ID</th>
-                                <th>TIME-IN</th>
+                                <th>#</th>
+                                <th>TIME IN</th>
+                                <th>ID NO</th>
                                 <th>NAME</th>
-                                <th>COURSE &amp; LEVEL</th>
+                                <th>COURSE / LEVEL</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% if records and records|length > 0 %}
-                                {% for row in records %}
+                            {% if records %}
+                                {% for rec in records %}
                                 <tr>
-                                    <td>{{ row.id }}</td>
-                                    <td>{{ row.time_in }}</td>
-                                    <td>{{ row.name }}</td>
-                                    <td>{{ row.course_level }}</td>
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ rec.time_in }}</td>
+                                    <td>{{ rec.student_id }}</td>
+                                    <td>{{ rec.name }}</td>
+                                    <td>{{ rec.course_level }}</td>
                                 </tr>
                                 {% endfor %}
                             {% else %}
                                 <tr>
-                                    <td colspan="4" class="attendance-empty">
-                                        No attendance records for this date.
+                                    <td colspan="5" style="text-align:center; padding:12px;">
+                                        No attendance records for {{ selected_date }}.
                                     </td>
                                 </tr>
                             {% endif %}
@@ -76,16 +104,13 @@
                     </table>
                 </div>
 
-                <p class="attendance-note">
-                    NOTE: You can choose a date and view the data in the table for the selected date (alphabetical order).
-                </p>
-
-            </div>
+            </section>
 
         </main>
-
     </div>
 
+    <!-- JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 
 </html>

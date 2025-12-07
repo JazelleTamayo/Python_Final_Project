@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // QR SCANNER (index.html)
     // ==========================
     const qrDiv = document.getElementById("qr-reader");
-    const resultBox = document.getElementById("scan-result");
+    // const resultBox = document.getElementById("scan-result"); // no longer used
     const statusTextEl = document.getElementById("scanner-status-text");
     const statusDotEl = document.querySelector(".status-dot");
 
@@ -18,7 +18,18 @@ document.addEventListener("DOMContentLoaded", function () {
     const scanLevelEl = document.getElementById("scan-level");
     const scanInfoMessage = document.getElementById("scan-info-message");
 
+    // Error modal elements
+    const scanErrorModal = document.getElementById("scan-error-modal");
+    const scanErrorText = document.getElementById("scan-error-text");
+    const scanErrorClose = document.getElementById("scan-error-close");
+
     let scanHideTimer = null;
+
+    // === Audio + rate-limit state ===
+    let audioCtx = null;
+    let lastScanTime = 0;
+    const SCAN_COOLDOWN_MS = 4000; // 4 seconds between scans
+    let isProcessingScan = false;
 
     function setStatus(message, mode = "info") {
         if (statusTextEl) {
@@ -34,7 +45,43 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Show student modal for 10 seconds
+    // Simple beep sound (success/error)
+    function playBeep(type) {
+        try {
+            if (!window.AudioContext && !window.webkitAudioContext) {
+                return; // browser doesn't support Web Audio
+            }
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            // Different frequencies for success vs error
+            if (type === "success") {
+                osc.frequency.value = 850; // higher tone
+            } else {
+                osc.frequency.value = 350; // lower tone
+            }
+
+            // Very short beep
+            const now = audioCtx.currentTime;
+            gainNode.gain.setValueAtTime(0.001, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.2, now + 0.01);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            osc.start(now);
+            osc.stop(now + 0.2);
+        } catch (e) {
+            console.warn("Beep error:", e);
+        }
+    }
+
+    // Show student modal for 10 seconds (success case)
     function showStudentModal(student, timeIn, created) {
         if (!scanModal) return;
 
@@ -59,16 +106,45 @@ document.addEventListener("DOMContentLoaded", function () {
                 : `Already recorded today at ${timeIn}.`;
         }
 
-        // show the modal
         scanModal.classList.add("show");
 
-        // auto-hide after 10 seconds
         if (scanHideTimer) clearTimeout(scanHideTimer);
         scanHideTimer = setTimeout(() => {
             scanModal.classList.remove("show");
             if (scanInfoMessage) scanInfoMessage.textContent = "";
             setStatus("Scanning... hold QR code steady.");
-        }, 10000); // 10,000 ms = 10 seconds
+        }, 10000); // you can change 10000 -> 4000 if you want faster close
+    }
+
+    // Error modal (for not_found, errors, server issues)
+    function showErrorModal(message) {
+        if (!scanErrorModal || !scanErrorText) return;
+        scanErrorText.textContent = message || "Unknown error.";
+        scanErrorModal.classList.add("show");
+    }
+
+    // Error modal close handlers + reset status
+    if (scanErrorModal) {
+        if (scanErrorClose) {
+            scanErrorClose.addEventListener("click", () => {
+                scanErrorModal.classList.remove("show");
+                setStatus("Scanning... hold QR code steady.");
+            });
+        }
+
+        scanErrorModal.addEventListener("click", (e) => {
+            if (e.target === scanErrorModal) {
+                scanErrorModal.classList.remove("show");
+                setStatus("Scanning... hold QR code steady.");
+            }
+        });
+
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && scanErrorModal.classList.contains("show")) {
+                scanErrorModal.classList.remove("show");
+                setStatus("Scanning... hold QR code steady.");
+            }
+        });
     }
 
     if (qrDiv) {
@@ -85,10 +161,17 @@ document.addEventListener("DOMContentLoaded", function () {
             const qrScanner = new Html5Qrcode("qr-reader");
 
             function onSuccess(decodedText) {
+                // Rate-limit duplicate scans
+                const now = Date.now();
+                if (isProcessingScan || (now - lastScanTime) < SCAN_COOLDOWN_MS) {
+                    return; // ignore repeated triggers too quickly
+                }
+                lastScanTime = now;
+                isProcessingScan = true;
+
                 console.log("Scanned:", decodedText);
                 setStatus("QR detected, checking student...", "info");
 
-                // Send QR text to Flask backend
                 fetch("/scan", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -101,39 +184,39 @@ document.addEventListener("DOMContentLoaded", function () {
                             const timeIn = data.time_in;
                             const created = data.created;
 
-                            if (resultBox) {
-                                resultBox.textContent =
-                                    `${student.student_id} - ${student.last_name}, ${student.first_name}`;
-                            }
-
                             setStatus("Attendance saved!", "success");
+                            playBeep("success");
                             showStudentModal(student, timeIn, created);
 
                         } else if (data.status === "not_found") {
-                            if (resultBox) {
-                                resultBox.textContent = "QR not registered (no student found).";
-                            }
                             setStatus("Student not found for this QR.", "error");
+                            playBeep("error");
+                            showErrorModal("Student does not exist or QR is not registered.");
 
                         } else {
                             const msg = data.message || "Unknown error.";
-                            if (resultBox) {
-                                resultBox.textContent = `Error: ${msg}`;
-                            }
                             setStatus("Error saving scan.", "error");
+                            playBeep("error");
+                            showErrorModal(msg);
                         }
                     })
                     .catch(err => {
                         console.error("Scan error:", err);
-                        if (resultBox) {
-                            resultBox.textContent = "Server error while processing QR.";
-                        }
                         setStatus("Server error.", "error");
+                        playBeep("error");
+                        showErrorModal("Server error while processing QR. Please try again.");
+                    })
+                    .finally(() => {
+                        // allow scanning again after the cooldown window passes
+                        setTimeout(() => {
+                            isProcessingScan = false;
+                            setStatus("Scanning... hold QR code steady.");
+                        }, SCAN_COOLDOWN_MS);
                     });
             }
 
             function onError(err) {
-                // Ignore continuous scan errors
+                // ignore continuous minor scan errors
             }
 
             Html5Qrcode.getCameras()
@@ -340,52 +423,83 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // ==========================
-    // DELETE CONFIRMATION MODAL
-    // ==========================
-    const deleteModal = document.getElementById("delete-modal");
-    const modalCancelBtn = document.getElementById("modal-cancel-btn");
-    const modalConfirmBtn = document.getElementById("modal-confirm-btn");
-    const deleteButtons = document.querySelectorAll(".delete-user-btn");
+// ==========================
+// DELETE CONFIRMATION MODAL
+// ==========================
+const deleteModal = document.getElementById("delete-modal");
+const modalCancelBtn = document.getElementById("modal-cancel-btn");
+const modalConfirmBtn = document.getElementById("modal-confirm-btn");
+const deleteButtons = document.querySelectorAll(".delete-user-btn");
 
-    let pendingDeleteUrl = null;
+let pendingDeleteUrl = null;
 
-    if (deleteModal && modalCancelBtn && modalConfirmBtn && deleteButtons.length > 0) {
+if (deleteModal && modalCancelBtn && modalConfirmBtn && deleteButtons.length > 0) {
 
-        deleteButtons.forEach(btn => {
-            btn.addEventListener("click", (e) => {
-                e.preventDefault();
+    // Open modal
+    deleteButtons.forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            e.preventDefault();
 
-                pendingDeleteUrl = btn.getAttribute("data-delete-url") || btn.href;
+            const urlAttr = btn.getAttribute("data-delete-url");
+            const hrefAttr = btn.getAttribute("href");
 
-                deleteModal.classList.add("show");
-            });
+            pendingDeleteUrl = urlAttr || hrefAttr || null;
+
+            if (!pendingDeleteUrl) {
+                console.error("No delete URL found on button:", btn);
+                return;
+            }
+
+            deleteModal.classList.add("show");
         });
+    });
 
-        modalCancelBtn.addEventListener("click", () => {
+    // CLOSE only when clicking CANCEL
+    modalCancelBtn.addEventListener("click", () => {
+        deleteModal.classList.remove("show");
+        pendingDeleteUrl = null;
+    });
+
+    // CONFIRM delete
+    modalConfirmBtn.addEventListener("click", () => {
+        if (!pendingDeleteUrl) {
+            console.error("No pending delete URL when confirming delete.");
             deleteModal.classList.remove("show");
-            pendingDeleteUrl = null;
-        });
+            return;
+        }
 
-        modalConfirmBtn.addEventListener("click", () => {
-            if (pendingDeleteUrl) {
-                window.location.href = pendingDeleteUrl;
-            }
-        });
+        // Redirect to delete URL
+        window.location.href = pendingDeleteUrl;
+    });
 
-        deleteModal.addEventListener("click", (e) => {
-            if (e.target === deleteModal) {
-                deleteModal.classList.remove("show");
-                pendingDeleteUrl = null;
-            }
-        });
+    // No click-outside or ESC behavior (as you requested)
+}
 
-        document.addEventListener("keydown", (e) => {
-            if (e.key === "Escape" && deleteModal.classList.contains("show")) {
-                deleteModal.classList.remove("show");
-                pendingDeleteUrl = null;
-            }
+
+
+    // ==========================
+    // AUTO-HIDE FLASH MESSAGES
+    // ==========================
+    const flashMessages = document.querySelectorAll(".flash-message");
+
+    if (flashMessages.length > 0) {
+        flashMessages.forEach((msg, index) => {
+            // show for 3.5s + a small stagger per message
+            const visibleTime = 3500 + index * 500;
+
+            setTimeout(() => {
+                msg.classList.add("flash-hide");
+
+                // remove from DOM after animation
+                setTimeout(() => {
+                    if (msg && msg.parentNode) {
+                        msg.parentNode.removeChild(msg);
+                    }
+                }, 500); // match CSS transition
+            }, visibleTime);
         });
     }
+
+
 
 });

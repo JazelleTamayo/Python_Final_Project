@@ -31,15 +31,15 @@
                 <button type="button" class="auth-tab" data-target="#register-form">Register</button>
             </div>
 
-            <!-- Flash Messages -->
+            <!-- ✅ FLASH MESSAGES (back here again) -->
             {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    <div class="flash-messages">
-                        {% for category, message in messages %}
-                            <div class="flash-message flash-{{ category }}">{{ message }}</div>
-                        {% endfor %}
-                    </div>
-                {% endif %}
+            {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
             {% endwith %}
 
             <!-- LOGIN FORM -->

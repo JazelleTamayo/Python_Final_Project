@@ -61,7 +61,7 @@ def init_db():
     """)
 
     # =====================
-    # ATTENDANCE TABLE (NEW)
+    # ATTENDANCE TABLE
     # =====================
     conn.execute("""
         CREATE TABLE IF NOT EXISTS attendance (
@@ -89,16 +89,28 @@ def get_admin_by_email(email: str):
     return row
 
 
+def get_admin_by_id(admin_id: int):
+    """
+    Return a single admin row by numeric id, or None if it doesn't exist.
+    """
+    conn = get_db()
+    cur = conn.execute("SELECT * FROM admins WHERE id = ?", (admin_id,))
+    row = cur.fetchone()
+    conn.close()
+    return row
+
+
 def create_admin(email: str, password: str):
     conn = get_db()
-    cur = conn.execute(
-        "INSERT INTO admins (email, password) VALUES (?, ?)",
-        (email, password)
-    )
-    conn.commit()
-    new_id = cur.lastrowid
-    conn.close()
-    return new_id
+    try:
+        cur = conn.execute(
+            "INSERT INTO admins (email, password) VALUES (?, ?)",
+            (email, password)
+        )
+        conn.commit()
+        return cur.lastrowid
+    finally:
+        conn.close()
 
 
 def get_all_admins():
@@ -111,19 +123,23 @@ def get_all_admins():
 
 def update_admin(admin_id: int, email: str, password: str):
     conn = get_db()
-    conn.execute(
-        "UPDATE admins SET email = ?, password = ? WHERE id = ?",
-        (email, password, admin_id)
-    )
-    conn.commit()
-    conn.close()
+    try:
+        conn.execute(
+            "UPDATE admins SET email = ?, password = ? WHERE id = ?",
+            (email, password, admin_id)
+        )
+        conn.commit()
+    finally:
+        conn.close()
 
 
 def delete_admin(admin_id: int):
     conn = get_db()
-    conn.execute("DELETE FROM admins WHERE id = ?", (admin_id,))
-    conn.commit()
-    conn.close()
+    try:
+        conn.execute("DELETE FROM admins WHERE id = ?", (admin_id,))
+        conn.commit()
+    finally:
+        conn.close()
 
 
 # ================================
@@ -178,15 +194,16 @@ def create_student(student_id: str,
     Inserts a new student row and returns the new ID.
     """
     conn = get_db()
-    cur = conn.execute("""
-        INSERT INTO students
-            (student_id, last_name, first_name, course, level, photo_path, qr_value)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-    """, (student_id, last_name, first_name, course, level, photo_path, qr_value))
-    conn.commit()
-    new_id = cur.lastrowid
-    conn.close()
-    return new_id
+    try:
+        cur = conn.execute("""
+            INSERT INTO students
+                (student_id, last_name, first_name, course, level, photo_path, qr_value)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (student_id, last_name, first_name, course, level, photo_path, qr_value))
+        conn.commit()
+        return cur.lastrowid
+    finally:
+        conn.close()
 
 
 def update_student(row_id: int,
@@ -201,19 +218,21 @@ def update_student(row_id: int,
     Updates an existing student row by numeric 'id'.
     """
     conn = get_db()
-    conn.execute("""
-        UPDATE students
-        SET student_id = ?,
-            last_name  = ?,
-            first_name = ?,
-            course     = ?,
-            level      = ?,
-            photo_path = ?,
-            qr_value   = ?
-        WHERE id = ?
-    """, (student_id, last_name, first_name, course, level, photo_path, qr_value, row_id))
-    conn.commit()
-    conn.close()
+    try:
+        conn.execute("""
+            UPDATE students
+            SET student_id = ?,
+                last_name  = ?,
+                first_name = ?,
+                course     = ?,
+                level      = ?,
+                photo_path = ?,
+                qr_value   = ?
+            WHERE id = ?
+        """, (student_id, last_name, first_name, course, level, photo_path, qr_value, row_id))
+        conn.commit()
+    finally:
+        conn.close()
 
 
 def delete_student(row_id: int):
@@ -221,13 +240,15 @@ def delete_student(row_id: int):
     Deletes a student by numeric 'id'.
     """
     conn = get_db()
-    conn.execute("DELETE FROM students WHERE id = ?", (row_id,))
-    conn.commit()
-    conn.close()
+    try:
+        conn.execute("DELETE FROM students WHERE id = ?", (row_id,))
+        conn.commit()
+    finally:
+        conn.close()
 
 
 # ================================
-# ATTENDANCE OPERATIONS (NEW)
+# ATTENDANCE OPERATIONS
 # ================================
 
 def record_attendance(student_row_id: int, date_str: str, time_in_str: str):
@@ -236,18 +257,20 @@ def record_attendance(student_row_id: int, date_str: str, time_in_str: str):
     Called when a QR is successfully scanned.
     """
     conn = get_db()
-    conn.execute("""
-        INSERT INTO attendance (student_id, date, time_in)
-        VALUES (?, ?, ?)
-    """, (student_row_id, date_str, time_in_str))
-    conn.commit()
-    conn.close()
+    try:
+        conn.execute("""
+            INSERT INTO attendance (student_id, date, time_in)
+            VALUES (?, ?, ?)
+        """, (student_row_id, date_str, time_in_str))
+        conn.commit()
+    finally:
+        conn.close()
 
 
 def get_attendance_by_date(date_str: str):
     """
     Returns attendance + joined student data for a given date.
-    Used by /attendance route to populate the table.
+    Now sorted by time_in (earliest first).
     """
     conn = get_db()
     cur = conn.execute("""
@@ -262,11 +285,13 @@ def get_attendance_by_date(date_str: str):
         FROM attendance a
         JOIN students s ON a.student_id = s.id
         WHERE a.date = ?
-        ORDER BY s.last_name, s.first_name
+        ORDER BY a.time_in ASC, a.id ASC
     """, (date_str,))
     rows = cur.fetchall()
     conn.close()
     return rows
+
+
 
 def get_attendance_for_student_on_date(student_row_id: int, date_str: str):
     """

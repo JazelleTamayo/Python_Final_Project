@@ -19,38 +19,45 @@
     <!-- TOP BAR -->
     <header class="top-bar">
         <div class="course-title">PYTHON MW 8:30 -10:30</div>
-
-        <!-- login button now links to /login -->
         <a href="{{ url_for('login') }}" class="login-btn">LOGIN</a>
     </header>
 
     <!-- MAIN CONTENT -->
     <main class="main-container">
 
+        <!-- ✅ FLASH MESSAGES (appear here, not in login.html) -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for category, message in messages %}
+            <div class="flash-message flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+        <!-- END FLASH -->
+
         <div class="qr-layout">
+
             <!-- LEFT: Scanner wrapper (QR + status) -->
             <div class="scanner-wrapper">
-                <!-- big square in the center (QR area) -->
+
+                <!-- QR Scanner Box -->
                 <div id="qr-reader" class="qr-box"></div>
 
-                <!-- status indicator -->
+                <!-- Status Indicator -->
                 <div class="scanner-status">
                     <span class="status-dot"></span>
                     <span id="scanner-status-text">Initializing camera...</span>
                 </div>
 
-                <!-- result text (last scanned text) -->
-                <div id="scan-result" class="scan-result">
-                    <!-- last scanned value will appear here -->
-                </div>
             </div>
         </div>
 
-        <!-- horizontal line -->
         <hr class="center-line">
     </main>
 
-    <!-- SCAN RESULT MODAL -->
+    <!-- SUCCESS MODAL -->
     <div id="scan-modal" class="modal-overlay">
         <div class="modal-dialog">
             <h3 class="modal-title">Scan Result</h3>
@@ -61,33 +68,28 @@
                 </div>
 
                 <div class="scan-fields">
-                    <div class="scan-row">
-                        <span class="scan-label">IDNO</span>
-                        <span class="scan-value" id="scan-idno"></span>
-                    </div>
-                    <div class="scan-row">
-                        <span class="scan-label">LASTNAME</span>
-                        <span class="scan-value" id="scan-last-name"></span>
-                    </div>
-                    <div class="scan-row">
-                        <span class="scan-label">FIRSTNAME</span>
-                        <span class="scan-value" id="scan-first-name"></span>
-                    </div>
-                    <div class="scan-row">
-                        <span class="scan-label">COURSE</span>
-                        <span class="scan-value" id="scan-course"></span>
-                    </div>
-                    <div class="scan-row">
-                        <span class="scan-label">LEVEL</span>
-                        <span class="scan-value" id="scan-level"></span>
-                    </div>
+                    <div class="scan-row"><span class="scan-label">IDNO</span><span class="scan-value" id="scan-idno"></span></div>
+                    <div class="scan-row"><span class="scan-label">LASTNAME</span><span class="scan-value" id="scan-last-name"></span></div>
+                    <div class="scan-row"><span class="scan-label">FIRSTNAME</span><span class="scan-value" id="scan-first-name"></span></div>
+                    <div class="scan-row"><span class="scan-label">COURSE</span><span class="scan-value" id="scan-course"></span></div>
+                    <div class="scan-row"><span class="scan-label">LEVEL</span><span class="scan-value" id="scan-level"></span></div>
                 </div>
             </div>
 
             <p id="scan-info-message" class="scan-info-message"></p>
-            <p class="scan-note">
-                This window will close automatically in 10 seconds.
-            </p>
+            <p class="scan-note">This window will close automatically in 10 seconds.</p>
+        </div>
+    </div>
+
+    <!-- ERROR MODAL -->
+    <div id="scan-error-modal" class="modal-overlay">
+        <div class="modal-dialog">
+            <h3 class="modal-title">Scan Error</h3>
+            <p id="scan-error-text" class="modal-message"></p>
+
+            <div class="modal-actions">
+                <button type="button" id="scan-error-close" class="admin-btn-outline">OK</button>
+            </div>
         </div>
     </div>
 
@@ -96,7 +98,7 @@
         ©copyright Tamayo&amp;Sermonia
     </footer>
 
-    <!-- your custom JS -->
+    <!-- JS -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 

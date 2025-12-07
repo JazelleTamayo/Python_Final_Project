@@ -283,7 +283,10 @@
     background-color: #333;
 }
 
-/* Flash Messages */
+/* =====================================================
+   FLASH MESSAGES (clean, original style + auto-hide)
+   ===================================================== */
+
 .flash-messages {
     margin-bottom: 14px;
 }
@@ -294,6 +297,7 @@
     border-radius: 6px;
     margin-bottom: 8px;
     border: 1px solid transparent;
+    transition: opacity 0.5s ease, height 0.5s ease, margin 0.5s ease, padding 0.5s ease;
 }
 
 .flash-success {
@@ -310,6 +314,22 @@
     background-color: #EAF2FF;
     border-color: #83A8E5;
 }
+
+/* Auto-hide animation (added by JS) */
+.flash-hide {
+    opacity: 0;
+    height: 0;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+}
+
+/* Add spacing below the top bar only for flash messages on index page */
+.main-container .flash-messages {
+    margin-top: 20px;
+}
+
+
 
 /* ADMIN LAYOUT */
 .admin-layout {
